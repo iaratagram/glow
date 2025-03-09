@@ -29,16 +29,39 @@ def show_chatbot_page():
         st.title("Glow AI")
         st.caption("🚀 Glow AI chat")
         
-        # --- 将 Mermaid 图表移到侧边栏并增加显示范围 ---
+        # --- 将 Mermaid 图表设置为可交互 ---
         st.subheader("Demo: Mermaid Diagram")
-        st_mermaid("""
+        
+        mermaid_chart = """
         flowchart LR
             A[Start] --> B{Condition?}
             B -->|Yes| C[Option 1]
             B -->|No| D[Option 2]
             C --> E[End]
             D --> E[End]
-        """, height=600, width=800)  # 增加高度和宽度参数
+            
+            click A callback
+            click B callback
+            click C callback
+            click D callback
+            click E callback
+        """
+        
+        clicked = st_mermaid(
+            mermaid_chart,
+            height=600, 
+            width=800,
+            key="interactive_diagram"
+        )
+        
+        # 统一处理点击事件
+        if clicked:
+            # 这里可以根据点击的节点执行相同的操作，只是节点名称不同
+            st.session_state["selected_node"] = clicked
+            st.write(f"你选择了节点: {clicked}")
+            
+            # 如果需要执行其他操作，可以在这里添加
+            # 例如，可以根据选择的节点更新聊天内容或者显示相关信息
 
     # 确保 "messages" 存在
     if "messages" not in st.session_state:
