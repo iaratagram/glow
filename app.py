@@ -57,9 +57,7 @@ def show_chatbot_page():
         # 统一处理点击事件 - 确保在sidebar内部正确缩进
         if clicked:
             # 这里可以根据点击的节点执行相同的操作，只是节点名称不同
-            st.session_state["selected_node"] = clicked
-            st.write(f"You selected node: {clicked}")
-            st.sidebar.write("Debug: clicked value:", clicked)
+            st.session_state["current_quote"] = f"引用自节点 {clicked}"
 
         
 
@@ -72,7 +70,10 @@ def show_chatbot_page():
         st.chat_message(msg["role"]).markdown(msg["content"])
 
     # 聊天输入框
-    if prompt := st.chat_input():
+    # 如果有选定的节点引用，显示在输入框中
+    initial_input = st.session_state.get("current_quote", "")
+    
+    if prompt := st.chat_input(value=initial_input):
         # 用户发送消息
         st.session_state["messages"].append({"role": "user", "content": prompt})
         st.chat_message("user").markdown(prompt)
@@ -81,6 +82,10 @@ def show_chatbot_page():
         ai_response = request_irister(st.session_state["messages"])
         st.session_state["messages"].append({"role": "assistant", "content": ai_response})
         st.chat_message("assistant").markdown(ai_response)
+        
+        # 清除当前引用，以便下次输入
+        if "current_quote" in st.session_state:
+            del st.session_state["current_quote"]
 
 def main():
     if "page" not in st.session_state:
