@@ -38,7 +38,7 @@ def show_chatbot_page():
             B -->|No| D[Option 2]
             C --> E[End]
             D --> E[End]
-        """, height=300, width=400)  # 增加高度和宽度参数
+        """, height=600, width=800)  # 增加高度和宽度参数
 
     # 确保 "messages" 存在
     if "messages" not in st.session_state:
