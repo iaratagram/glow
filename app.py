@@ -1,6 +1,7 @@
 import streamlit as st
 from openai import OpenAI  # 如果没有用到可去掉
 from irister_utils import request_irister  # 替换为你真实的 API 调用
+from streamlit_mermaid import st_mermaid
 
 def show_first_page():
     st.title("Glow AI v0")
@@ -22,23 +23,28 @@ def show_first_page():
             st.warning("Please enter some text before submitting.")
 
 def show_chatbot_page():
-    st.title("Glow AI v0")
+    st.title("Glow AI v0 - Chatbot")
 
     with st.sidebar:
         st.title("Glow AI")
         st.caption("🚀 Glow AI chat")
 
-    # 如有需要，确保 "messages" 存在
+    # 确保 "messages" 存在
     if "messages" not in st.session_state:
-        starting_msg = (
-            "DEBUG: Current Node - [NODE 1: Best Experience]\n"
-            "Hello and welcome to your mindfulness feedback session! "
-            "Let's start by reflecting on your recent practice. "
-            "Could you please share what you enjoyed most about your session?"
-        )
-        st.session_state["messages"] = [{"role": "assistant", "content": starting_msg}]
+        st.session_state["messages"] = []
 
-    # 显示当前对话记录
+    # --- 使用 streamlit-mermaid 展示 Mermaid 流程图 ---
+    st.subheader("Demo: Mermaid Diagram")
+    st_mermaid("""
+    flowchart LR
+        A[Start] --> B{Condition?}
+        B -->|Yes| C[Option 1]
+        B -->|No| D[Option 2]
+        C --> E[End]
+        D --> E[End]
+    """)
+
+    # 显示对话记录
     for msg in st.session_state["messages"]:
         st.chat_message(msg["role"]).markdown(msg["content"])
 
