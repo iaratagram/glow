@@ -45,18 +45,33 @@ def show_chatbot_page():
         st.write("等待节点点击...")
         
         mermaid_chart = """
-        flowchart LR
-            A[Start] --> B{Condition?}
-            B -->|Yes| C[Option 1]
-            B -->|No| D[Option 2]
-            C --> E[End]
-            D --> E[End]
-            
-            click A href "#A" "点击开始节点"
-            click B href "#B" "点击条件节点"
-            click C href "#C" "点击选项1"
-            click D href "#D" "点击选项2"
-            click E href "#E" "点击结束节点"
+        flowchart TD
+        %% Nodes
+            A("fab:fa-youtube Starter Guide")
+            B("fab:fa-youtube Make Flowchart")
+            n1@{ icon: "fa:gem", pos: "b", h: 24}
+            C("fa:fa-book-open Learn More")
+            D{"Use the editor"}
+            n2(Many shapes)@{ shape: delay}
+            E(fa:fa-shapes Visual Editor)
+            F("fa:fa-chevron-up Add node in toolbar")
+            G("fa:fa-comment-dots AI chat")
+            H("fa:fa-arrow-left Open AI in side menu")
+            I("fa:fa-code Text")
+            J(fa:fa-arrow-left Type Mermaid syntax)
+
+        %% Edge connections between nodes
+            A --> B --> C --> n1 & D & n2
+            D -- Build and Design --> E --> F
+            D -- Use AI --> G --> H
+            D -- Mermaid js --> I --> J
+
+        %% Individual node styling. Try the visual editor toolbar for easier styling!
+            style E color:#FFFFFF, fill:#AA00FF, stroke:#AA00FF
+            style G color:#FFFFFF, stroke:#00C853, fill:#00C853
+            style I color:#FFFFFF, stroke:#2962FF, fill:#2962FF
+
+        %% You can add notes with two "%" signs in a row!
         """
         
         # 使用 on_click 参数来捕获点击事件
