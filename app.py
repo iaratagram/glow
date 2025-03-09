@@ -23,17 +23,26 @@ def show_first_page():
             st.warning("Please enter some text before submitting.")
 
 def show_chatbot_page():
+    st.markdown("""
+    <style>
+        [data-testid="stSidebar"] {
+            min-width: 350px;
+            max-width: 450px;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
     st.title("Glow AI v0 - Chatbot")
 
     with st.sidebar:
         st.title("Glow AI")
         st.caption("🚀 Glow AI chat")
         
-        # --- 将 Mermaid 图表设置为可交互 ---
+        # --- 将 Mermaid 图表设置为可交互，并调整大小以适应侧边栏 ---
         st.subheader("Demo: Mermaid Diagram")
         
         mermaid_chart = """
-        flowchart TD
+        flowchart LR
             A[Start] --> B{Condition?}
             B -->|Yes| C[Option 1]
             B -->|No| D[Option 2]
@@ -47,10 +56,11 @@ def show_chatbot_page():
             click E callback
         """
         
+        # 调整宽度以适应侧边栏，高度足够显示整个图表
         clicked = st_mermaid(
             mermaid_chart,
-            height=600, 
-            width=800,
+            height=400,  # 减小高度以避免滚动
+            width=300,   # 调整宽度以适应侧边栏
             key="interactive_diagram"
         )
         
