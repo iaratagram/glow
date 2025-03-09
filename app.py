@@ -65,7 +65,6 @@ def show_chatbot_page():
             height=800,
             width=600, 
             key="interactive_diagram",
-            return_click_target=True  # 确保返回点击目标
         )
         
         # 显示点击结果以便调试
