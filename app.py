@@ -69,7 +69,6 @@ def show_chatbot_page():
         )
         
         # 显示点击结果以便调试
-        st.write(f"点击结果: {clicked}")
         
         # 统一处理点击事件
         if clicked:
@@ -81,9 +80,12 @@ def show_chatbot_page():
             
             # 显示确认信息
             st.success(f"已选择节点: {node_id}")
+            st.write(f"点击结果: {clicked}")
             
             # 重新运行应用以更新UI
             st.rerun()
+        else:
+            st.write("没有点击任何节点")
 
     # 确保 "messages" 存在
     if "messages" not in st.session_state:
