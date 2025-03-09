@@ -28,10 +28,8 @@ def show_chatbot_page():
     with st.sidebar:
         st.title("Glow AI")
         st.caption("🚀 Glow AI chat")
-        
         # --- 将 Mermaid 图表设置为可交互 ---
-        st.subheader("Demo: Mermaid Diagram")
-        
+        st.subheader("Demo: Mermaid Diagram")  
         mermaid_chart = """
         flowchart TD
             A[Start] --> B{Condition?}
@@ -46,7 +44,6 @@ def show_chatbot_page():
             click D callback
             click E callback
         """
-        
         clicked = st_mermaid(
             mermaid_chart,
             height=800, 
