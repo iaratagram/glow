@@ -29,7 +29,7 @@ def show_chatbot_page():
         st.title("Glow AI")
         st.caption("🚀 Glow AI chat")
         
-        # --- 将 Mermaid 图表移到侧边栏 ---
+        # --- 将 Mermaid 图表移到侧边栏并增加显示范围 ---
         st.subheader("Demo: Mermaid Diagram")
         st_mermaid("""
         flowchart LR
@@ -38,7 +38,7 @@ def show_chatbot_page():
             B -->|No| D[Option 2]
             C --> E[End]
             D --> E[End]
-        """)
+        """, height=300, width=400)  # 增加高度和宽度参数
 
     # 确保 "messages" 存在
     if "messages" not in st.session_state:
