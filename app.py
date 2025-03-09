@@ -41,7 +41,7 @@ def show_chatbot_page():
         # --- 将 Mermaid 图表设置为可交互，并调整大小以适应侧边栏 ---
         st.subheader("Demo: Mermaid Diagram")
 
-        print("mermaid_chart rendering...")
+        st.write("mermaid_chart rendering...")
         
         mermaid_chart = """
         flowchart LR
@@ -70,10 +70,8 @@ def show_chatbot_page():
             # 这里可以根据点击的节点执行相同的操作，只是节点名称不同
             st.session_state["current_quote"] = f"引用自节点 {clicked}"
             ## LOG CURRENT NODE
-            print(f"Current Node: {clicked}")
+            st.write(f"Current Node: {clicked}")
             st.rerun()
-
-        
 
     # 确保 "messages" 存在
     if "messages" not in st.session_state:
@@ -92,7 +90,7 @@ def show_chatbot_page():
         st.session_state["messages"].append({"role": "user", "content": prompt})
         st.chat_message("user").markdown(prompt)
 
-        print("prompt: ", prompt)
+        st.write("prompt: ", prompt)
 
         # 调用自己的聊天逻辑或后端 API
         # ai_response = request_irister(st.session_state["messages"])
