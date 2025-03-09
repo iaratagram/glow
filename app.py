@@ -54,14 +54,14 @@ def show_chatbot_page():
             key="interactive_diagram"
         )
         
-        # 统一处理点击事件
-    if clicked:
-        # 这里可以根据点击的节点执行相同的操作，只是节点名称不同
-        st.session_state["selected_node"] = clicked
-        st.write(f"你选择了节点: {clicked}")
-            
-            # 如果需要执行其他操作，可以在这里添加
-            # 例如，可以根据选择的节点更新聊天内容或者显示相关信息
+        # 统一处理点击事件 - 确保在sidebar内部正确缩进
+        if clicked:
+            # 这里可以根据点击的节点执行相同的操作，只是节点名称不同
+            st.session_state["selected_node"] = clicked
+            st.write(f"You selected node: {clicked}")
+            st.sidebar.write("Debug: clicked value:", clicked)
+
+        
 
     # 确保 "messages" 存在
     if "messages" not in st.session_state:
