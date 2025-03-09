@@ -58,6 +58,8 @@ def show_chatbot_page():
         if clicked:
             # 这里可以根据点击的节点执行相同的操作，只是节点名称不同
             st.session_state["current_quote"] = f"引用自节点 {clicked}"
+            ## LOG CURRENT NODE
+            print(f"Current Node: {clicked}")
             st.rerun()
 
         
