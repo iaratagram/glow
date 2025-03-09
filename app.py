@@ -50,6 +50,10 @@ def show_chatbot_page():
             D -- Build and Design --> E --> F
             D -- Use AI --> G --> H
             D -- Mermaid js --> I --> J
+
+            style E color:#FFFFFF, fill:#AA00FF, stroke:#AA00FF
+            style G color:#FFFFFF, stroke:#00C853, fill:#00C853
+            style I color:#FFFFFF, stroke:#2962FF, fill:#2962FF
         """
         
         # 使用 on_click 参数来捕获点击事件
