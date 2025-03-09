@@ -33,7 +33,7 @@ def show_chatbot_page():
         st.subheader("Demo: Mermaid Diagram")
         
         mermaid_chart = """
-        flowchart LR
+        flowchart TD
             A[Start] --> B{Condition?}
             B -->|Yes| C[Option 1]
             B -->|No| D[Option 2]
