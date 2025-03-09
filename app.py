@@ -28,21 +28,21 @@ def show_chatbot_page():
     with st.sidebar:
         st.title("Glow AI")
         st.caption("🚀 Glow AI chat")
+        
+        # --- 将 Mermaid 图表移到侧边栏 ---
+        st.subheader("Demo: Mermaid Diagram")
+        st_mermaid("""
+        flowchart LR
+            A[Start] --> B{Condition?}
+            B -->|Yes| C[Option 1]
+            B -->|No| D[Option 2]
+            C --> E[End]
+            D --> E[End]
+        """)
 
     # 确保 "messages" 存在
     if "messages" not in st.session_state:
         st.session_state["messages"] = []
-
-    # --- 使用 streamlit-mermaid 展示 Mermaid 流程图 ---
-    st.subheader("Demo: Mermaid Diagram")
-    st_mermaid("""
-    flowchart LR
-        A[Start] --> B{Condition?}
-        B -->|Yes| C[Option 1]
-        B -->|No| D[Option 2]
-        C --> E[End]
-        D --> E[End]
-    """)
 
     # 显示对话记录
     for msg in st.session_state["messages"]:
