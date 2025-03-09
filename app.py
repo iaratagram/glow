@@ -48,16 +48,7 @@ def show_chatbot_page():
         flowchart TD
             A("fab:fa-youtube Starter Guide")
             B("fab:fa-youtube Make Flowchart")
-            n1@{ icon: "fa:gem", pos: "b", h: 24}
-            C("fa:fa-book-open Learn More")
-            D{"Use the editor"}
-            n2(Many shapes)@{ shape: delay}
-            E(fa:fa-shapes Visual Editor)
-            F("fa:fa-chevron-up Add node in toolbar")
-            G("fa:fa-comment-dots AI chat")
-            H("fa:fa-arrow-left Open AI in side menu")
-            I("fa:fa-code Text")
-            J(fa:fa-arrow-left Type Mermaid syntax)
+
         
             A --> B --> C --> n1 & D & n2
             D -- Build and Design --> E --> F
