@@ -41,7 +41,8 @@ def show_chatbot_page():
         # --- 将 Mermaid 图表设置为可交互，并调整大小以适应侧边栏 ---
         st.subheader("Demo: Mermaid Diagram")
 
-        st.write("mermaid_chart rendering...")
+        # 添加调试信息
+        st.write("等待节点点击...")
         
         mermaid_chart = """
         flowchart LR
@@ -51,26 +52,37 @@ def show_chatbot_page():
             C --> E[End]
             D --> E[End]
             
-            click A callback
-            click B callback
-            click C callback
-            click D callback
-            click E callback
+            click A href "#A" "点击开始节点"
+            click B href "#B" "点击条件节点"
+            click C href "#C" "点击选项1"
+            click D href "#D" "点击选项2"
+            click E href "#E" "点击结束节点"
         """
         
+        # 使用 on_click 参数来捕获点击事件
         clicked = st_mermaid(
             mermaid_chart,
             height=800,
             width=600, 
-            key="interactive_diagram"
+            key="interactive_diagram",
+            return_click_target=True  # 确保返回点击目标
         )
         
-        # 统一处理点击事件 - 确保在sidebar内部正确缩进
+        # 显示点击结果以便调试
+        st.write(f"点击结果: {clicked}")
+        
+        # 统一处理点击事件
         if clicked:
+            # 提取节点ID (去掉 "#" 前缀)
+            node_id = clicked.replace("#", "") if clicked.startswith("#") else clicked
+            
             # 这里可以根据点击的节点执行相同的操作，只是节点名称不同
-            st.session_state["current_quote"] = f"引用自节点 {clicked}"
-            ## LOG CURRENT NODE
-            st.write(f"Current Node: {clicked}")
+            st.session_state["current_quote"] = f"引用自节点 {node_id}"
+            
+            # 显示确认信息
+            st.success(f"已选择节点: {node_id}")
+            
+            # 重新运行应用以更新UI
             st.rerun()
 
     # 确保 "messages" 存在
