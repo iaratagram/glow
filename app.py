@@ -32,25 +32,34 @@ def show_chatbot_page():
         # --- 将 Mermaid 图表设置为可交互 ---
         st.subheader("Demo: Mermaid Diagram")
         
-    mermaid_code = """
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-    <div class="mermaid">
-    flowchart LR
-        A[Start] --> B{Condition?}
-        B -->|Yes| C[Option 1]
-        B -->|No| D[Option 2]
-        C --> E[End]
-        D --> E[End]
-    </div>
-    <script>
-        // 初始化 Mermaid
-        mermaid.initialize({ startOnLoad: true });
-    </script>
-    """
-
-    # 将 Mermaid HTML 代码插入 Streamlit 页面
-    # 可以根据需要调整 height 或 width
-    st.components.v1.html(mermaid_code, height=400)
+        mermaid_chart = """
+        flowchart TD
+            A[Start] --> B{Condition?}
+            B -->|Yes| C[Option 1]
+            B -->|No| D[Option 2]
+            C --> E[End]
+            D --> E[End]
+            
+            click A callback 
+            click B callback
+            click C callback
+            click D callback
+            click E callback
+        """
+        
+        clicked = st_mermaid(
+            mermaid_chart,
+            height=800, 
+            width=800,
+            key="interactive_diagram"
+        )
+        
+        # 统一处理点击事件 - 确保在sidebar内部正确缩进
+        if clicked:
+            # 这里可以根据点击的节点执行相同的操作，只是节点名称不同
+            st.session_state["current_quote"] = f"引用自节点 {clicked}"
+            ## LOG CURRENT NODE
+            print(f"Current Node: {clicked}")
 
         
 
