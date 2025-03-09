@@ -38,13 +38,12 @@ def show_chatbot_page():
         st.title("Glow AI")
         st.caption("🚀 Glow AI chat")
         
-        # --- 将 Mermaid 图表设置为可交互，并调整大小以适应侧边栏 ---
+        # --- 使用 Markdown 显示 Mermaid 图表 ---
         st.subheader("Demo: Mermaid Diagram")
-
-        # 添加调试信息
-        st.write("等待节点点击...")
         
-        mermaid_chart = """
+        # Mermaid 图表的 HTML 包装
+        mermaid_html = """
+        <div class="mermaid">
         flowchart TD
             A("fab:fa-youtube Starter Guide")
             B("fab:fa-youtube Make Flowchart")
@@ -54,38 +53,31 @@ def show_chatbot_page():
             D -- Build and Design --> E --> F
             D -- Use AI --> G --> H
             D -- Mermaid js --> I --> J
-
-            click A callback
-            click B callback
-            click C callback
+        </div>
+        
+        <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+        <script>
+            mermaid.initialize({startOnLoad:true});
+            document.addEventListener('DOMContentLoaded', function() {
+                mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+            });
+        </script>
         """
         
-        # 使用 on_click 参数来捕获点击事件
-        clicked = st_mermaid(
-            mermaid_chart,
-            height=800,
-            width=600, 
-            key="interactive_diagram",
-        )
+        # 使用 markdown 显示 HTML
+        st.markdown(mermaid_html, unsafe_allow_html=True)
         
-        # 显示点击结果以便调试
-        
-        # 统一处理点击事件
-        if clicked:
-            # 提取节点ID (去掉 "#" 前缀)
-            node_id = clicked.replace("#", "") if clicked.startswith("#") else clicked
-            
-            # 这里可以根据点击的节点执行相同的操作，只是节点名称不同
-            st.session_state["current_quote"] = f"引用自节点 {node_id}"
-            
-            # 显示确认信息
-            st.success(f"已选择节点: {node_id}")
-            st.write(f"点击结果: {clicked}")
-            
-            # 重新运行应用以更新UI
+        # 使用按钮代替点击事件
+        st.write("请选择一个节点:")
+        if st.button("Starter Guide (A)"):
+            st.session_state["current_quote"] = "引用自节点 A: Starter Guide"
             st.rerun()
-        else:
-            st.write("没有点击任何节点")
+        if st.button("Make Flowchart (B)"):
+            st.session_state["current_quote"] = "引用自节点 B: Make Flowchart"
+            st.rerun()
+        if st.button("Learn More (C)"):
+            st.session_state["current_quote"] = "引用自节点 C: Learn More"
+            st.rerun()
 
     # 确保 "messages" 存在
     if "messages" not in st.session_state:
