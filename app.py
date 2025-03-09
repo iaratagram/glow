@@ -73,7 +73,7 @@ def show_chatbot_page():
     # 如果有选定的节点引用，显示在输入框中
     initial_input = st.session_state.get("current_quote", "")
     
-    if prompt := st.chat_input(value=initial_input):
+    if prompt := st.chat_input(accept_file=False, placeholder=initial_input):
         # 用户发送消息
         st.session_state["messages"].append({"role": "user", "content": prompt})
         st.chat_message("user").markdown(prompt)
