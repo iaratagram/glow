@@ -26,8 +26,8 @@ def show_chatbot_page():
     st.markdown("""
     <style>
         [data-testid="stSidebar"] {
-            min-width: 350px;
-            max-width: 450px;
+            min-width: 150px;
+            max-width: 800px;
         }
     </style>
     """, unsafe_allow_html=True)
@@ -40,6 +40,8 @@ def show_chatbot_page():
         
         # --- 将 Mermaid 图表设置为可交互，并调整大小以适应侧边栏 ---
         st.subheader("Demo: Mermaid Diagram")
+
+        print("mermaid_chart rendering...")
         
         mermaid_chart = """
         flowchart LR
@@ -56,11 +58,10 @@ def show_chatbot_page():
             click E callback
         """
         
-        # 调整宽度以适应侧边栏，高度足够显示整个图表
         clicked = st_mermaid(
             mermaid_chart,
-            height=400,  # 减小高度以避免滚动
-            width=300,   # 调整宽度以适应侧边栏
+            height=800,
+            width=600, 
             key="interactive_diagram"
         )
         
