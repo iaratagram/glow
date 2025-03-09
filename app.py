@@ -92,10 +92,12 @@ def show_chatbot_page():
         st.session_state["messages"].append({"role": "user", "content": prompt})
         st.chat_message("user").markdown(prompt)
 
+        print("prompt: ", prompt)
+
         # 调用自己的聊天逻辑或后端 API
-        ai_response = request_irister(st.session_state["messages"])
-        st.session_state["messages"].append({"role": "assistant", "content": ai_response})
-        st.chat_message("assistant").markdown(ai_response)
+        # ai_response = request_irister(st.session_state["messages"])
+        # st.session_state["messages"].append({"role": "assistant", "content": ai_response})
+        # st.chat_message("assistant").markdown(ai_response)
         
         # 清除当前引用，以便下次输入
         if "current_quote" in st.session_state:
