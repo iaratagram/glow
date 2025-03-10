@@ -44,7 +44,7 @@ def show_chatbot_page():
         st.subheader("Demo: Mermaid Diagram")
 
         mermaid_code = """
-        flowchart TD
+        flowchart LR
             A[Trigger Event: Received Harsh Feedback at Work] --> B[Vulnerability Factors: Sleep Deprivation for 3 Days]
             B --> C[Thoughts: I'm a Failure at Everything]
             C --> D[Emotions: Intense Anxiety]
