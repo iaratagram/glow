@@ -54,13 +54,10 @@ def show_chatbot_page():
             E --> H[Long-Term Consequences: Weight Gain and Increased Anxiety]
         """
         
-        mermaid_chart = f"""
-        {mermaid_code}
-        """
         
         # 使用 st_mermaid 显示图表
         st_mermaid(
-            mermaid_chart,
+            mermaid_code,
             height=600,
             width=500
         )
