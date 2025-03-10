@@ -45,7 +45,7 @@ def show_chatbot_page():
 
         mermaid_code = """
         flowchart TD
-            A --> B
+            A --> B["who are you"]
         """
         
         
