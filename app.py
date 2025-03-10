@@ -48,7 +48,9 @@ def show_chatbot_page():
         
         # 使用 st_mermaid 显示图表
         st_mermaid(
-            mermaid_code
+            mermaid_code,
+            height=1600,
+            width=1600
         )
         
 
