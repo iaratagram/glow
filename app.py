@@ -54,7 +54,7 @@ def show_chatbot_page():
             E --> G[Emotional Consequences: Guilt and Shame]
             E --> H[Long-Term Consequences: Weight Gain and Increased Anxiety]
 
-            style A fill:#f9f,stroke:#333,stroke-width:2px
+            style E fill:#f9f,stroke:#333,stroke-width:2px
         """
         
         
