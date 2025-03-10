@@ -26,4 +26,24 @@ def request_irister(messages):
     response = requests.post(url, headers=headers, json=data)
     return response.text
 
+def irister_start_session(user_input):
+    url = f"{irister_url}/glow/startsession"
+    headers = {
+        "Authorization": f"Bearer {irister_key}",
+        "Content-Type": "application/json"
+    }
+    data = {"problem_behavior": user_input}
+    response = requests.post(url, headers=headers, json=data)
+    return response.json()["session_id"]
+
+
+def irister_chat_session(session_id, messages):
+    url = f"{irister_url}/glow/chat"
+    headers = {
+        "Authorization": f"Bearer {irister_key}",
+        "Content-Type": "application/json"
+    }
+    data = {"session_id": session_id, "messages": messages}
+    response = requests.post(url, headers=headers, json=data)
+    return response.json()["response"]
 
