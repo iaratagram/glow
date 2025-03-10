@@ -45,8 +45,13 @@ def show_chatbot_page():
 
         mermaid_code = """
         flowchart TD
-            A --> B[who are you]
-            B --> C[I am a chatbot]
+            A[Trigger Event: Received Harsh Feedback at Work] --> B[Vulnerability Factors: Sleep Deprivation for 3 Days]
+            B --> C[Thoughts: I'm a Failure at Everything]
+            C --> D[Emotions: Intense Anxiety]
+            D --> E[Behavior: Binge Eating High-Calorie Foods]
+            E --> F[Immediate Consequences: Physical Discomfort]
+            E --> G[Emotional Consequences: Guilt and Shame]
+            E --> H[Long-Term Consequences: Weight Gain and Increased Anxiety]
         """
         
         
