@@ -27,6 +27,16 @@ def show_first_page():
 def show_chatbot_page():
     st.title("Glow AI v0 - Chatbot")
 
+    ## larger sidebar
+    st.markdown("""
+    <style>
+        [data-testid="stSidebar"] {
+            min-width: 200px;
+            max-width: 1800px;
+        }
+    </style>    
+    """, unsafe_allow_html=True)
+
     with st.sidebar:
         st.title("Glow AI")
         st.caption("🚀 Glow AI chat")
@@ -35,11 +45,11 @@ def show_chatbot_page():
         st.subheader("Demo: Mermaid Diagram")
 
         mermaid_code = """
-        flowchart LR
+        flowchart TD
             A[Trigger Event: Received Harsh Feedback at Work] --> B[Vulnerability Factors: Sleep Deprivation for 3 Days]
             B --> C[Thoughts: I'm a Failure at Everything]
             C --> D[Emotions: Intense Anxiety]
-            D --> E[Behavior: Binge Eating High-Calorie Foods]
+            D --> E{{Behavior: Binge Eating High-Calorie Foods}}
             E --> F[Immediate Consequences: Physical Discomfort]
             E --> G[Emotional Consequences: Guilt and Shame]
             E --> H[Long-Term Consequences: Weight Gain and Increased Anxiety]
