@@ -25,15 +25,6 @@ def show_first_page():
             st.warning("Please enter some text before submitting.")
 
 def show_chatbot_page():
-    st.markdown("""
-    <style>
-        [data-testid="stSidebar"] {
-            min-width: 150px;
-            max-width: 800px;
-        }
-    </style>
-    """, unsafe_allow_html=True)
-
     st.title("Glow AI v0 - Chatbot")
 
     with st.sidebar:
@@ -57,9 +48,7 @@ def show_chatbot_page():
         
         # 使用 st_mermaid 显示图表
         st_mermaid(
-            mermaid_code,
-            height=600,
-            width=500
+            mermaid_code
         )
         
 
