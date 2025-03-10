@@ -44,19 +44,25 @@ def show_chatbot_page():
         st.subheader("Demo: Mermaid Diagram")
 
         mermaid_code = """
-        flowchart TD
-            A("Starter Guide")
-            B("Make Flowchart")
-            C("Learn More")
-            D("Options")
+        graph TD
+            A[Trigger Event: Received Harsh Feedback at Work] --> B[Vulnerability Factors: Sleep Deprivation for 3 Days]
+            B --> C[Thoughts: "I'm a Failure at Everything"]
+            C --> D[Emotions: Intense Anxiety (90%)]
+            D --> E[Behavior: Binge Eating High-Calorie Foods]
+            E --> F[Immediate Consequences: Physical Discomfort]
+            E --> G[Emotional Consequences: Guilt and Shame]
+            E --> H[Long-Term Consequences: Weight Gain and Increased Anxiety]
         """
         
+        mermaid_chart = f"""
+        {mermaid_code}
+        """
         
         # 使用 st_mermaid 显示图表
         st_mermaid(
-            mermaid_code,
+            mermaid_chart,
             height=600,
-            width=600
+            width=500
         )
         
 
@@ -78,9 +84,9 @@ def show_chatbot_page():
 
 
         # 调用自己的聊天逻辑或后端 API
-        # ai_response = request_irister(st.session_state["messages"])
-        # st.session_state["messages"].append({"role": "assistant", "content": ai_response})
-        # st.chat_message("assistant").markdown(ai_response)
+        ai_response = request_irister(st.session_state["messages"])
+        st.session_state["messages"].append({"role": "assistant", "content": ai_response})
+        st.chat_message("assistant").markdown(ai_response)
         
 
 def main():
