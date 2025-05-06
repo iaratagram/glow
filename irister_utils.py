@@ -15,7 +15,7 @@ irister_url = "https://iris-server-e5f0bc08552d.herokuapp.com"
 # api key should be in bearer token
 
 def request_irister(messages):
-    url = f"{irister_url}/v1/purer"
+    url = f"{irister_url}/v1/glow"
     headers = {
         "Authorization": f"Bearer {irister_key}",
         "Content-Type": "application/json"
