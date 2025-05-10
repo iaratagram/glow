@@ -1,75 +1,155 @@
 import streamlit as st
-from openai import OpenAI  # 如果没有用到可去掉
-from irister_utils import request_irister  # 替换为你真实的 API 调用
-from streamlit_mermaid import st_mermaid
+import requests
+import openai
 
-def show_chatbot_page():
-    st.title("Glow AI v0 - Chatbot")
+# -----------------------------------
+# Authentication
+# -----------------------------------
+def authenticate(username: str, password: str) -> bool:
+    users = st.secrets["credentials"]["users"]
+    user_password = users.get(username)
+    if user_password and user_password == password:
+        return True
+    return False
 
-    ## larger sidebar
-    st.markdown("""
-    <style>
-        [data-testid="stSidebar"] {
-            min-width: 200px;
-            max-width: 1800px;
-        }
-    </style>    
-    """, unsafe_allow_html=True)
+# Initialize auth state
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
 
-    with st.sidebar:
-        st.title("Glow AI")
-        st.caption("🚀 Glow AI chat")
-        
-        # --- 使用 streamlit-mermaid 显示图表 ---
-        # st.subheader("Demo: Mermaid Diagram")
+# Login UI
+if not st.session_state.authenticated:
+    st.title("🔒 Please log in to continue")
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    if st.button("Login"):
+        if authenticate(username, password):
+            st.session_state.authenticated = True
+            st.session_state.username = username
+            st.experimental_rerun()
+        else:
+            st.error("❌ Invalid username or password.")
+    st.stop()
 
-        # mermaid_code = """
-        # flowchart TD
-        #     B[Vulnerability Factors: Sleep Deprivation for 3 Days] --> A[Trigger Event: Received Harsh Feedback at Work]
-        #     A --> C[Thoughts: I'm a Failure at Everything]
-        #     A --> D[Emotions: Intense Anxiety]
-        #     C & D --> E{{Behavior: Binge Eating High-Calorie Foods}}
-        #     E --> F[Immediate Consequences: Physical Discomfort]
-        #     E --> G[Emotional Consequences: Guilt and Shame]
-        #     E --> H[Long-Term Consequences: Weight Gain and Increased Anxiety]
+# -----------------------------------
+# Sidebar: User & Navigation
+# -----------------------------------
+st.sidebar.title(f"👤 {st.session_state.username}")
 
-        #     style E fill:#f9f,stroke:#333,stroke-width:2px
-        # """
-        
-        
-        # # 使用 st_mermaid 显示图表
-        # st_mermaid(
-        #     mermaid_code,
-        #     height=1600,
-        #     width=1600
-        # )
-        
+# API setup
+history_api = "https://api.irister.com/chat/history"
+api_key = st.secrets["IRISTER_API_KEY"]
+headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
-    # 确保 "messages" 存在
-    if "messages" not in st.session_state:
-        st.session_state["messages"] = []
+# Fetch conversation list
+conversations = []
+try:
+    resp = requests.get(history_api, headers=headers, timeout=5)
+    resp.raise_for_status()
+    conversations = resp.json()
+except Exception:
+    st.sidebar.error("Unable to load chat history.")
 
-    # 显示对话记录
-    for msg in st.session_state["messages"]:
-        st.chat_message(msg["role"]).markdown(msg["content"])
+# Initialize mode
+if "mode" not in st.session_state:
+    st.session_state.mode = "new"
 
-    # 聊天输入框
-    # 如果有选定的节点引用，显示在输入框中
-    
-    if prompt := st.chat_input(accept_file=False):
-        # 用户发送消息
-        st.session_state["messages"].append({"role": "user", "content": prompt})
-        st.chat_message("user").markdown(prompt)
+# New Conversation button in sidebar
+def start_new():
+    st.session_state.mode = "new"
+    st.session_state.system_set = False
+    st.session_state.pop("conversation_id", None)
 
+st.sidebar.button("➕ New Conversation", on_click=start_new)
 
-        # 调用自己的聊天逻辑或后端 API
-        ai_response = request_irister(st.session_state["messages"])
-        st.session_state["messages"].append({"role": "assistant", "content": ai_response})
-        st.chat_message("assistant").markdown(ai_response)
-        
+# Conversation selector
+titles = [conv.get("title", conv.get("conversation_id")) for conv in conversations]
+selected_conv_id = None
+if titles:
+    def select_history():
+        st.session_state.mode = "history"
+        st.session_state.pop("conversation_id", None)
+    st.sidebar.radio("Chat History", titles, key="conv_selected", on_change=select_history)
+    sel_title = st.session_state.conv_selected
+    for conv in conversations:
+        if conv.get("title", conv.get("conversation_id")) == sel_title:
+            selected_conv_id = conv.get("conversation_id")
+            break
 
-def main():
-    show_chatbot_page()
+# -----------------------------------
+# Main Area: Content
+# -----------------------------------
+if st.session_state.mode == "new":
+    st.title("🆕 New Conversation")
+    # Step 1: Set system prompt
+    if not st.session_state.get("system_set", False):
+        prompt = st.text_area("Set system prompt for this conversation:", height=150)
+        if st.button("Start Conversation") and prompt.strip():
+            st.session_state.system_prompt = prompt
+            st.session_state.messages = [{"role": "system", "content": prompt}]
+            st.session_state.system_set = True
+            st.experimental_rerun()
+        else:
+            st.info("Please enter a system prompt to begin.")
+    else:
+        # Display system prompt and messages
+        st.header("System Prompt:")
+        st.write(f"*{st.session_state.system_prompt}*")
+        for msg in st.session_state.messages:
+            st.chat_message(msg["role"]).write(msg["content"])
 
-if __name__ == "__main__":
-    main()
+        # Chat input
+        user_input = st.chat_input("Type your message...")
+        if user_input:
+            # On first user message, create conversation thread in history
+            if "conversation_id" not in st.session_state:
+                data = {"title": st.session_state.system_prompt}
+                try:
+                    create_resp = requests.post(history_url, headers=headers, json=data, timeout=5)
+                    create_resp.raise_for_status()
+                    conv_info = create_resp.json()  # expects {"conversation_id": "..."}
+                    st.session_state.conversation_id = conv_info.get("conversation_id")
+                except Exception:
+                    st.error("Failed to create conversation thread.")
+
+            # Append and display user message
+            st.session_state.messages.append({"role": "user", "content": user_input})
+            st.chat_message("user").write(user_input)
+
+            # Call OpenAI
+            openai.api_key = st.secrets["openai"]["api_key"]
+            with st.spinner("Assistant is typing..."):
+                res = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=st.session_state.messages
+                )
+                reply = res.choices[0].message.content
+
+            # Append and display assistant message
+            st.session_state.messages.append({"role": "assistant", "content": reply})
+            st.chat_message("assistant").write(reply)
+            
+            # Optionally, push message to history API
+            if st.session_state.get("conversation_id"):
+                msg_url = f"{history_url}/{st.session_state.conversation_id}/messages"
+                try:
+                    requests.post(msg_url, headers=headers, json={"role": "user", "content": user_input})
+                    requests.post(msg_url, headers=headers, json={"role": "assistant", "content": reply})
+                except Exception:
+                    st.warning("Warning: failed to sync messages to history API.")
+
+else:
+    # Display selected conversation
+    st.title(f"💬 Conversation: {sel_title}")
+    if selected_conv_id:
+        msgs = []
+        conv_url = f"{history_url}/{selected_conv_id}/messages"
+        try:
+            resp = requests.get(conv_url, headers=headers, timeout=5)
+            resp.raise_for_status()
+            msgs = resp.json()
+        except Exception:
+            st.error("Unable to load messages.")
+        for msg in msgs:
+            st.chat_message(msg["role"]).write(msg["content"])
+    else:
+        st.info("No conversations available.")
