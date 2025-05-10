@@ -25,7 +25,7 @@ if not st.session_state.authenticated:
         if authenticate(username, password):
             st.session_state.authenticated = True
             st.session_state.username = username
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.error("❌ Invalid username or password.")
     st.stop()
@@ -87,7 +87,7 @@ if st.session_state.mode == "new":
             st.session_state.system_prompt = prompt
             st.session_state.messages = [{"role": "system", "content": prompt}]
             st.session_state.system_set = True
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.info("Please enter a system prompt to begin.")
     else:
