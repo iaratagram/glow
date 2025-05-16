@@ -1,22 +1,17 @@
 import streamlit as st
-import requests
-import openai
+import irister_utils
 
 # -----------------------------------
 # Authentication
 # -----------------------------------
 def authenticate(username: str, password: str) -> bool:
     users = st.secrets["credentials"]["users"]
-    user_password = users.get(username)
-    if user_password and user_password == password:
-        return True
-    return False
+    return users.get(username) == password
 
 # Initialize auth state
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
-# Login UI
 if not st.session_state.authenticated:
     st.title("🔒 Please log in to continue")
     username = st.text_input("Username")
@@ -35,44 +30,49 @@ if not st.session_state.authenticated:
 # -----------------------------------
 st.sidebar.title(f"👤 {st.session_state.username}")
 
-# API setup
-history_api = "https://api.irister.com/chat/history"
-api_key = st.secrets["IRISTER_API_KEY"]
-headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-
 # Fetch conversation list
-conversations = []
 try:
-    resp = requests.get(history_api, headers=headers, timeout=5)
-    resp.raise_for_status()
-    conversations = resp.json()
+    conversations = irister_utils.glow_get_all_conversations(st.session_state.username)
 except Exception:
     st.sidebar.error("Unable to load chat history.")
+    conversations = []
 
-# Initialize mode
-if "mode" not in st.session_state:
-    st.session_state.mode = "new"
-
-# New Conversation button in sidebar
-def start_new():
+# Callback: Reset to new conversation
+def reset_to_new():
     st.session_state.mode = "new"
     st.session_state.system_set = False
     st.session_state.pop("conversation_id", None)
+    st.session_state.pop("messages", None)
 
-st.sidebar.button("➕ New Conversation", on_click=start_new)
+# Callback: When selecting existing convo
+def select_history():
+    st.session_state.mode = "history"
+    st.session_state.system_set = True
+    # conversation_id already set via sidebar selection
+    st.session_state.pop("messages", None)
 
-# Conversation selector
-titles = [conv.get("title", conv.get("conversation_id")) for conv in conversations]
-selected_conv_id = None
-if titles:
-    def select_history():
-        st.session_state.mode = "history"
-        st.session_state.pop("conversation_id", None)
-    st.sidebar.radio("Chat History", titles, key="conv_selected", on_change=select_history)
-    sel_title = st.session_state.conv_selected
+# Initialize mode
+def init_mode():
+    if "mode" not in st.session_state:
+        reset_to_new()
+init_mode()
+
+# Sidebar controls
+st.sidebar.button("➕ New Conversation", on_click=reset_to_new)
+
+titles = [conv.get("title") or conv.get("conversation_id") for conv in conversations]
+st.sidebar.radio(
+    "Chat History",
+    options=[None] + titles,
+    key="conv_selected",
+    on_change=select_history
+)
+if st.session_state.get("conv_selected"):
+    selected = st.session_state.conv_selected
     for conv in conversations:
-        if conv.get("title", conv.get("conversation_id")) == sel_title:
-            selected_conv_id = conv.get("conversation_id")
+        title = conv.get("title") or conv.get("conversation_id")
+        if title == selected:
+            st.session_state.conversation_id = conv.get("conversation_id")
             break
 
 # -----------------------------------
@@ -80,76 +80,60 @@ if titles:
 # -----------------------------------
 if st.session_state.mode == "new":
     st.title("🆕 New Conversation")
-    # Step 1: Set system prompt
     if not st.session_state.get("system_set", False):
         prompt = st.text_area("Set system prompt for this conversation:", height=150)
         if st.button("Start Conversation") and prompt.strip():
             st.session_state.system_prompt = prompt
             st.session_state.messages = [{"role": "system", "content": prompt}]
-            st.session_state.system_set = True
-            st.rerun()
+            try:
+                cid = irister_utils.glow_create_convo(st.session_state.username, prompt)
+                st.session_state.conversation_id = cid
+                st.session_state.system_set = True
+                st.rerun()
+            except Exception:
+                st.error("Failed to create conversation thread.")
         else:
             st.info("Please enter a system prompt to begin.")
     else:
-        # Display system prompt and messages
-        st.header("System Prompt:")
-        st.write(f"*{st.session_state.system_prompt}*")
+        # Chat interface for new conversation
+        st.header(f"System Prompt: *{st.session_state.system_prompt}*")
         for msg in st.session_state.messages:
             st.chat_message(msg["role"]).write(msg["content"])
-
-        # Chat input
         user_input = st.chat_input("Type your message...")
         if user_input:
-            # On first user message, create conversation thread in history
-            if "conversation_id" not in st.session_state:
-                data = {"title": st.session_state.system_prompt}
-                try:
-                    create_resp = requests.post(history_url, headers=headers, json=data, timeout=5)
-                    create_resp.raise_for_status()
-                    conv_info = create_resp.json()  # expects {"conversation_id": "..."}
-                    st.session_state.conversation_id = conv_info.get("conversation_id")
-                except Exception:
-                    st.error("Failed to create conversation thread.")
-
-            # Append and display user message
             st.session_state.messages.append({"role": "user", "content": user_input})
             st.chat_message("user").write(user_input)
-
-            # Call OpenAI
-            openai.api_key = st.secrets["openai"]["api_key"]
-            with st.spinner("Assistant is typing..."):
-                res = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
-                    messages=st.session_state.messages
-                )
-                reply = res.choices[0].message.content
-
-            # Append and display assistant message
+            try:
+                reply = irister_utils.glow_chat(st.session_state.conversation_id, user_input)
+            except Exception:
+                st.error("Error during chat API call.")
+                reply = ""
             st.session_state.messages.append({"role": "assistant", "content": reply})
             st.chat_message("assistant").write(reply)
-            
-            # Optionally, push message to history API
-            if st.session_state.get("conversation_id"):
-                msg_url = f"{history_url}/{st.session_state.conversation_id}/messages"
-                try:
-                    requests.post(msg_url, headers=headers, json={"role": "user", "content": user_input})
-                    requests.post(msg_url, headers=headers, json={"role": "assistant", "content": reply})
-                except Exception:
-                    st.warning("Warning: failed to sync messages to history API.")
 
-else:
-    # Display selected conversation
-    st.title(f"💬 Conversation: {sel_title}")
-    if selected_conv_id:
-        msgs = []
-        conv_url = f"{history_url}/{selected_conv_id}/messages"
+elif st.session_state.mode == "history":
+    st.title(f"💬 Conversation: {st.session_state.conv_selected}")
+    cid = st.session_state.get("conversation_id")
+    # Load history once
+    if "messages" not in st.session_state:
         try:
-            resp = requests.get(conv_url, headers=headers, timeout=5)
-            resp.raise_for_status()
-            msgs = resp.json()
+            msgs = irister_utils.glow_get_all_messages(cid)
         except Exception:
             st.error("Unable to load messages.")
-        for msg in msgs:
-            st.chat_message(msg["role"]).write(msg["content"])
-    else:
-        st.info("No conversations available.")
+            msgs = []
+        # Store loaded messages
+        st.session_state.messages = msgs
+    # Display and continue chat
+    for msg in st.session_state.messages:
+        st.chat_message(msg["role"]).write(msg["content"])
+    user_input = st.chat_input("Type your message...")
+    if user_input:
+        st.session_state.messages.append({"role": "user", "content": user_input})
+        st.chat_message("user").write(user_input)
+        try:
+            reply = irister_utils.glow_chat(cid, user_input)
+        except Exception:
+            st.error("Error during chat API call.")
+            reply = ""
+        st.session_state.messages.append({"role": "assistant", "content": reply})
+        st.chat_message("assistant").write(reply)

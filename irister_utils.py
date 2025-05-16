@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 
-irister_key = st.secrets["IRISTER_API_KEY"]
+glow_api_key = st.secrets["GLOW_API_KEY"]
 
 irister_url = "https://iris-server-e5f0bc08552d.herokuapp.com"
 
@@ -14,36 +14,44 @@ irister_url = "https://iris-server-e5f0bc08552d.herokuapp.com"
 # }
 # api key should be in bearer token
 
-def request_irister(messages):
-    url = f"{irister_url}/v1/glow"
+def glow_create_convo(user_id: str, system_prompt: str):
+    url = f"{irister_url}/glow-ai/create_conversation"
     headers = {
-        "Authorization": f"Bearer {irister_key}",
+        "Authorization": f"Bearer {glow_api_key}",
         "Content-Type": "application/json"
     }
-    data = {
-        "messages": messages
-    }
+    data = {"user_id": user_id, "system_prompt": system_prompt}
     response = requests.post(url, headers=headers, json=data)
-    return response.text
+    return response.json()["data"]["conversation_id"]
 
-def irister_start_session(user_input):
-    url = f"{irister_url}/glow/startsession"
+
+def glow_chat(conversation_id: str, message: str):
+    url = f"{irister_url}/glow-ai/chat"
     headers = {
-        "Authorization": f"Bearer {irister_key}",
+        "Authorization": f"Bearer {glow_api_key}",
         "Content-Type": "application/json"
     }
-    data = {"problem_behavior": user_input}
+    data = {"conversation_id": conversation_id, "message": message}
     response = requests.post(url, headers=headers, json=data)
-    return response.json()["session_id"]
+    return response.json()["message"]
 
 
-def irister_chat_session(session_id, messages):
-    url = f"{irister_url}/glow/chat"
+def glow_get_all_conversations(user_id: str):
+    url = f"{irister_url}/glow-ai/get_all_conversations?user_id={user_id}"
     headers = {
-        "Authorization": f"Bearer {irister_key}",
+        "Authorization": f"Bearer {glow_api_key}",
         "Content-Type": "application/json"
     }
-    data = {"session_id": session_id, "messages": messages}
-    response = requests.post(url, headers=headers, json=data)
-    return response.json()["response"]
+    response = requests.get(url, headers=headers)
+    return response.json()["conversations"]
+
+
+def glow_get_all_messages(conversation_id: str):
+    url = f"{irister_url}/glow-ai/getallmessageswithconversationid?conversation_id={conversation_id}"
+    headers = {
+        "Authorization": f"Bearer {glow_api_key}",
+        "Content-Type": "application/json"
+    }
+    response = requests.get(url, headers=headers)
+    return response.json()["messages"]
 
