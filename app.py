@@ -43,6 +43,7 @@ def reset_to_new():
     st.session_state.system_set = False
     st.session_state.pop("conversation_id", None)
     st.session_state.pop("messages", None)
+    st.session_state.pop("conv_selected", None)
 
 # Callback: When selecting existing convo
 def select_history():
