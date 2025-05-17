@@ -89,6 +89,8 @@ for title in titles:
                     st.session_state.conversation_id = conv.get("conversation_id")
                     break
             select_history()
+            # 强制重新渲染页面以更新标记
+            st.rerun()
 
 # -----------------------------------
 # Main Area: Content
