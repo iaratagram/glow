@@ -67,8 +67,10 @@ st.sidebar.markdown("### 💬 Conversation History")
 titles = [conv.get("title") or conv.get("conversation_id") for conv in conversations]
 # 为每个对话创建一个可点击的按钮
 for title in titles:
+    # 为当前选中的对话添加标记
+    current_marker = "▶️ " if st.session_state.get("conv_selected") == title else "    "
     if st.sidebar.button(
-        f"📝 {title}",
+        f"{current_marker}📝 {title}",
         key=f"history_{title}",
         use_container_width=True,
     ):
