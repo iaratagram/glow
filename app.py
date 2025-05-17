@@ -58,22 +58,27 @@ def init_mode():
 init_mode()
 
 # Sidebar controls
-st.sidebar.button("➕ New Conversation", on_click=reset_to_new)
+st.sidebar.button("➕ New Conversation", on_click=reset_to_new, use_container_width=True)
+
+# 添加一个分隔线
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 💬 Conversation History")
 
 titles = [conv.get("title") or conv.get("conversation_id") for conv in conversations]
-st.sidebar.radio(
-    "Chat History",
-    options=[None] + titles,
-    key="conv_selected",
-    on_change=select_history
-)
-if st.session_state.get("conv_selected"):
-    selected = st.session_state.conv_selected
-    for conv in conversations:
-        title = conv.get("title") or conv.get("conversation_id")
-        if title == selected:
-            st.session_state.conversation_id = conv.get("conversation_id")
-            break
+# 为每个对话创建一个可点击的按钮
+for title in titles:
+    if st.sidebar.button(
+        f"📝 {title}",
+        key=f"history_{title}",
+        use_container_width=True,
+    ):
+        st.session_state.conv_selected = title
+        # 设置conversation_id
+        for conv in conversations:
+            if (conv.get("title") or conv.get("conversation_id")) == title:
+                st.session_state.conversation_id = conv.get("conversation_id")
+                break
+        select_history()
 
 # -----------------------------------
 # Main Area: Content
